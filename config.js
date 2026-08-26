@@ -1,5 +1,5 @@
 window.AXIO_APP_CONFIG = {
-  "BACKEND_URL": "https://script.google.com/macros/s/AKfycbyz_cyROYZgCRvjjLdbwdv5QdASar6x8eEcPIGkzQ/exec",
+  "BACKEND_URL": "https://script.google.com/macros/s/AKfycbxWmCLVBpeXUJUlbq0cjKyuT1LSLk62oR08sUW_-tp8a3U5n8ZEtJiw7C8FvU6rEGc/exec",
   "MODULE_VERSION": "AXIOLOGIA-UAEMEX-4.6-HOTFIX",
   "INSTITUCION": "Universidad Autónoma del Estado de México",
   "PROGRAMA": "Licenciatura en Psicología",
