@@ -1,6 +1,6 @@
 window.AXIO_APP_CONFIG = {
   "BACKEND_URL": "https://script.google.com/macros/s/AKfycbxWmCLVBpeXUJUlbq0cjKyuT1LSLk62oR08sUW_-tp8a3U5n8ZEtJiw7C8FvU6rEGc/exec",
-  "MODULE_VERSION": "AXIOLOGIA-UAEMEX-4.6-HOTFIX",
+  "MODULE_VERSION": "AXIOLOGIA-UAEMEX-4.7-CONFIRMACION",
   "INSTITUCION": "Universidad Autónoma del Estado de México",
   "PROGRAMA": "Licenciatura en Psicología",
   "CURSO": "Ética en la Psicología",
@@ -12,7 +12,7 @@ window.AXIO_APP_CONFIG = {
     "curso": "Ética en la Psicología",
     "titulo": "Módulo de Axiología",
     "responsable": "Dr. Eriobeth Vargas Hernández",
-    "version": "4.6-HOTFIX",
+    "version": "4.7-CONFIRMACION",
     "conceptos": [
       "La axiología es la ciencia o teoría de los valores.",
       "El término axiología integra axios, relacionado con lo digno o valioso, y logos, relacionado con fundamentación o concepto.",
