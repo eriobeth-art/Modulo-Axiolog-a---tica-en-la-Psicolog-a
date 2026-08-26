@@ -1,4 +1,4 @@
-# Módulo de Axiología · UAEMéx · V4.5
+# Módulo de Axiología · UAEMéx · V4.6 HOTFIX
 ## Paquete para GitHub Pages
 
 Este paquete es la parte pública del módulo. Está preparado para GitHub Pages y NO contiene la clave docente.
@@ -69,3 +69,8 @@ Este paquete ya está vinculado al endpoint publicado de Google Apps Script:
 
 La URL con terminación `/dev` es para pruebas dentro del editor.  
 Para GitHub Pages y estudiantes se utiliza `/exec`.
+
+
+## Rescate de la V4.5
+
+La V4.6 mantiene deliberadamente la clave local `axiologia_github_v4_5` para recuperar el avance guardado de estudiantes que recarguen la página durante la contingencia. No cambies esa clave hasta terminar el grupo actual.
