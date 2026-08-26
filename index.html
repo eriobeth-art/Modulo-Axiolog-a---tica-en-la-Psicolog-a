@@ -735,24 +735,59 @@ function solicitarPdf(){
     descargarPdfBase64();
     return;
   }
+  if(!backendConfigurado()){
+    alert('No se encontró la conexión con el servidor.');
+    return;
+  }
 
   loading(true,'Generando tu acuse PDF…');
   const b=document.getElementById('pdfBtn');
   if(b)b.disabled=true;
 
   clearTimeout(pdfTimer);
-  pdfTimer=setTimeout(()=>{
+  const cb='__AXIO_PDF_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  const script=document.createElement('script');
+  let terminado=false;
+
+  const limpiar=()=>{
+    if(terminado)return;
+    terminado=true;
+    try{delete window[cb]}catch(e){window[cb]=undefined}
+    try{script.remove()}catch(e){}
+  };
+
+  window[cb]=r=>{
+    limpiar();
+    procesarResultadoPdf(r);
+  };
+
+  script.onerror=()=>{
+    limpiar();
+    clearTimeout(pdfTimer);
     pdfTimer=null;
     loading(false);
     const btn=document.getElementById('pdfBtn');
     if(btn)btn.disabled=false;
-    alert('Tu evidencia ya quedó registrada, pero el PDF está tardando más de lo esperado. Puedes volver a intentar la descarga sin perder tu calificación.');
-  },120000);
+    alert('No fue posible contactar al generador del PDF. Tu evidencia y calificación ya están guardadas. Intenta nuevamente en unos segundos.');
+  };
 
-  const payload={folio:result.folio,submissionId:data.submissionId||''};
-  document.getElementById('backendPdfForm').action=backendUrl();
-  document.getElementById('backendPdfPayload').value=JSON.stringify(payload);
-  document.getElementById('backendPdfForm').submit();
+  script.src=backendUrl()+
+    '?action=pdf'+
+    '&folio='+encodeURIComponent(result.folio)+
+    '&submissionId='+encodeURIComponent(data.submissionId||'')+
+    '&callback='+encodeURIComponent(cb)+
+    '&_='+Date.now();
+  document.body.appendChild(script);
+
+  pdfTimer=setTimeout(()=>{
+    if(terminado)return;
+    limpiar();
+    pdfTimer=null;
+    loading(false);
+    const btn=document.getElementById('pdfBtn');
+    if(btn)btn.disabled=false;
+    alert('Tu evidencia ya quedó registrada. El generador de PDF no respondió en 60 segundos; puedes volver a intentarlo sin perder tu calificación.');
+  },60000);
 }
 
 function procesarResultadoPdf(r){
