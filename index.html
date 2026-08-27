@@ -181,6 +181,9 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 let supervisionDebounce=0;
 let supervisionListenersActivos=false;
+let unlockEnProceso=false;
+let unlockTimer=null;
+let unlockScript=null;
 
 function onSupervisionVisibilityChange(){
   if(document.hidden){
@@ -217,6 +220,9 @@ function desactivarDetectoresSupervision(){
 
 function registrarIncidenciaSupervision(tipo){
   if(!data.supervision || !data.supervision.activo || !data.supervision.consentimientoAceptado || result) return;
+  // V4.9: mientras la actividad ya está bloqueada o se valida la clave,
+  // no acumular nuevas incidencias por eventos de foco del propio desbloqueo.
+  if(data.supervision.bloqueado || unlockEnProceso) return;
 
   const now=Date.now();
   if(now-supervisionDebounce<1200) return;
@@ -311,15 +317,57 @@ function solicitarDesbloqueo(){
     return;
   }
 
+  if(unlockEnProceso) return;
+  unlockEnProceso=true;
+
   if(btn){
     btn.disabled=true;
     btn.textContent='Validando clave…';
   }
 
-  document.getElementById('backendUnlockForm').action=backendUrl();
-  document.getElementById('backendTeacherCode').value=clave;
-  document.getElementById('backendStudentId').value=data.matricula||'';
-  document.getElementById('backendUnlockForm').submit();
+  // V4.9: desbloqueo por JSONP/GET. Evita depender del iframe/postMessage,
+  // que en algunos navegadores puede no devolver el resultado a GitHub Pages.
+  const cb='__AXIO_UNLOCK_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  const script=document.createElement('script');
+  unlockScript=script;
+  let terminado=false;
+
+  const limpiar=()=>{
+    if(terminado)return;
+    terminado=true;
+    clearTimeout(unlockTimer);
+    unlockTimer=null;
+    unlockEnProceso=false;
+    try{delete window[cb]}catch(e){window[cb]=undefined}
+    try{script.remove()}catch(e){}
+    if(unlockScript===script) unlockScript=null;
+  };
+
+  window[cb]=res=>{
+    limpiar();
+    procesarResultadoDesbloqueo(res);
+  };
+
+  script.onerror=()=>{
+    limpiar();
+    if(btn){btn.disabled=false;btn.textContent='Desbloquear actividad';}
+    if(err){err.textContent='No fue posible contactar al servidor. Intenta nuevamente; tu avance permanece guardado.';err.style.display='block';}
+  };
+
+  script.src=backendUrl()+
+    '?action=unlock'+
+    '&teacher_code='+encodeURIComponent(clave)+
+    '&student_id='+encodeURIComponent(data.matricula||'')+
+    '&callback='+encodeURIComponent(cb)+
+    '&_='+Date.now();
+  document.body.appendChild(script);
+
+  unlockTimer=setTimeout(()=>{
+    if(terminado)return;
+    limpiar();
+    if(btn){btn.disabled=false;btn.textContent='Desbloquear actividad';}
+    if(err){err.textContent='El servidor tardó demasiado en validar la clave. Intenta nuevamente; no es necesario recargar la página.';err.style.display='block';}
+  },20000);
 }
 
 function procesarResultadoDesbloqueo(res){
